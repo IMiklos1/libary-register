@@ -13,10 +13,10 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'app-items',
   standalone: true,
   imports: [ReactiveFormsModule,
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatTableModule, 
-    MatSortModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatSortModule,
     MatPaginatorModule,
     FormsModule],
   templateUrl: './items.component.html',
@@ -85,15 +85,12 @@ export class ItemsComponent {
 
   getItems(): void {
     this.itemService.getAll()
-      .subscribe(
-        (data) => {
+      .subscribe({
+        next: (data) => {
           this.items = data;
           this.dataSource.data = this.items;
-        },
-        (error) => {
-          console.log(error);
         }
-      );
+      });
   }
 
   async onSubmit() {
@@ -104,6 +101,8 @@ export class ItemsComponent {
       this.itemService.create(itemData).subscribe({
         next: (itemCreated) => {
           this.router.navigateByUrl('/items');
+          this.itemForm.reset();
+          this.getItems();
         },
         error: (err) => {
           console.log(err);

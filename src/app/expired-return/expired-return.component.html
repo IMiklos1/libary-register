@@ -1,7 +1,23 @@
 <div class="container">
-    <h1>Register</h1>
     <div class="row align-items-center">
-        <h3>Currently rented items</h3>
+        <div class="col">
+            <h3>Out of specified time: </h3>
+        </div>
+        <div class="row align-items-center">
+            <div class="col text-end">
+                <h6>Item which rented more then</h6>
+            </div>
+                <mat-form-field class="example-user-input">
+                    <input matInput type="number" [formControl]="daysControl"
+                           aria-label="Adds a delay between hovering over the button and displaying the tooltip">
+                  </mat-form-field>
+            <div class="col text-start">
+                <h6>days ago</h6>
+            </div>
+<hr>
+        </div>
+    </div>
+    <div class="row align-items-center">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
             <!-- ID Column -->
@@ -70,75 +86,21 @@
                 <td mat-cell *matCellDef="let row"> {{row.renter ? row.renter.status : 'N/A'}} </td>
             </ng-container>
 
+            <ng-container matColumnDef="startRent">
+                <th mat-header-cell *matHeaderCellDef> Date of rent </th>
+                <td mat-cell *matCellDef="let row"> {{row.startRent ? row.startRent : 'N/A'}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="expiredWith">
+                <th mat-header-cell *matHeaderCellDef> Expired with (days) </th>
+                <td mat-cell *matCellDef="let row"> {{row.differenceWithAddedDate}} </td>
+            </ng-container>
+
             <!-- Add other columns similarly -->
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-        <hr>
-        <hr>
-    </div>
-    <div class="row align-items-center">
-        <h3>Add new rent</h3>
-        <div class="col">
-            <h6>Select User</h6>
-            <form class="example-form">
-                <mat-form-field class="example-full-width">
-                    <mat-label>Assignee</mat-label>
-                    <input type="text" matInput [formControl]="userSearchControl" [matAutocomplete]="auto"
-                        (input)="onUserInput()">
-                    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFnUser">
-                        <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
-                            {{ user.name }} | {{ user.address }} | {{ user.idCard }}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-            </form>
-        </div>
-        <div class="col" *ngIf="userSearchControl.value">
-            <h6>{{ getUserRentCount(userSearchControl.value) }} items rented by the user</h6>
-        </div>
-
-        <div class="col">
-            <h6>Select Item</h6>
-            <form class="example-form">
-                <mat-form-field class="example-full-width">
-                    <mat-label>Item</mat-label>
-                    <input type="text" matInput [formControl]="itemSearchControl" [matAutocomplete]="auto2"
-                        (input)="onItemInput()">
-                    <mat-autocomplete #auto2="matAutocomplete" [displayWith]="displayFnItem">
-                        <mat-option *ngFor="let item of filteredItems | async" [value]="item">
-                            {{ item.title }} | {{ item.author }} | {{ item.type }}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-            </form>
-        </div>
-        <div class="col">
-            <button class="btn btn-primary" type="button" (click)="addNewRent()">Add</button>
-        </div>
-        <hr>
-    </div>
-    <div class="row align-items-center">
-        <h3>Retrived item</h3>
-        <div class="col">
-            <h6>Select Item</h6>
-            <form class="example-form">
-                <mat-form-field class="example-full-width">
-                    <mat-label>Item</mat-label>
-                    <input type="text" matInput [formControl]="reservedItemSearchControl" [matAutocomplete]="auto3"
-                        (input)="onRecivedItemInput()">
-                    <mat-autocomplete #auto3="matAutocomplete" [displayWith]="displayFnReservedItem">
-                        <mat-option *ngFor="let item of filteredRecivedItems | async" [value]="item">
-                            {{ item.title }} | {{ item.author }} | {{ item.type }}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-            </form>
-        </div>
-        <div class="col">
-            <button class="btn btn-primary" type="button" (click)="recivedItem()">brought back</button>
-        </div>
         <hr>
     </div>
 </div>

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { ItemDto } from '../models/item-dto.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class ItemService {
 
   http = inject(HttpClient);
 
-  getAll() {
+  getAll(): Observable<ItemDto[]>{
     return this.http.get<ItemDto[]>('/api/item');    
   }
 

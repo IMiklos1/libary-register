@@ -14,7 +14,7 @@ import { ItemService } from '../services/item.service';
 import { MatOption, MatSelectModule } from '@angular/material/select';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @Component({
@@ -30,7 +30,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MatSelectModule,
     AsyncPipe,
     MatAutocompleteModule,
-  MatOption],
+    MatOption,
+    CommonModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -55,16 +56,18 @@ export class RegisterComponent implements OnInit {
   items: ItemDto[];
   itemsWithRenter: ItemWithRenterDto[];
 
-  selectedUser: UserDto | null = null;
   userSearchControl = new FormControl();
   addRentingUser: UserDto[];
-  filteredUsers: Observable<UserDto[]>;
-  selectedItem: ItemDto | null = null;
+  filteredUsers: Observable<UserDto[]> = new Observable<UserDto[]>;
+  
   itemSearchControl = new FormControl();
   addRentedItem: ItemDto[];
-  filteredItems: Observable<ItemDto[]>;
-  router: any;
+  filteredItems: Observable<ItemDto[]> = new Observable<ItemDto[]>;
+  
 
+  reservedItemSearchControl = new FormControl();
+  reservedItems: ItemDto[];
+  filteredRecivedItems: Observable<ItemDto[]> = new Observable<ItemDto[]>;
 
   constructor(private registerService: RegisterService, private userService: UserService, private itemService: ItemService) {
     this.users = [];
@@ -77,7 +80,12 @@ export class RegisterComponent implements OnInit {
     // this.selectedItem = this.items[0];
     this.addRentingUser = [];
     this.addRentedItem = [];
+    this.reservedItems = [];
 
+    this.resetOptions();
+  }
+
+  resetOptions(){
     this.filteredUsers = this.userSearchControl.valueChanges.pipe(
       startWith(''),
       map(value => this._userFilter(value))
@@ -87,6 +95,11 @@ export class RegisterComponent implements OnInit {
       startWith(''),
       map(value => this._itemFilter(value))
     );
+
+    this.filteredRecivedItems = this.reservedItemSearchControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._reservedItemFilter(value)) 
+    );
   }
 
   ngOnInit(): void {
@@ -94,7 +107,12 @@ export class RegisterComponent implements OnInit {
   }
 
   private _userFilter(value: string | null): UserDto[] {
-    const filterValue = (value || '').toLowerCase(); // Handle null or undefined
+    const filterValue = (value || '').toLowerCase().trim();
+
+    if (!filterValue) {
+      return this.addRentingUser;
+    }
+
     return this.addRentingUser.filter(user =>
       user.name.toLowerCase().includes(filterValue) ||
       user.address.toLowerCase().includes(filterValue) ||
@@ -103,8 +121,27 @@ export class RegisterComponent implements OnInit {
   }
 
   private _itemFilter(value: string | null): ItemDto[] {
-    const filterValue = (value || '').toLowerCase(); // Handle null or undefined
+    const filterValue = (value || '').toLowerCase().trim();
+
+    if (!filterValue) {
+      return this.addRentedItem;
+    }
+
     return this.addRentedItem.filter(item =>
+      item.title.toLowerCase().includes(filterValue) ||
+      item.author.toLowerCase().includes(filterValue) ||
+      item.type.toLowerCase().includes(filterValue)
+    );
+  }
+
+  private _reservedItemFilter(value: string | null): ItemDto[] {
+    const filterValue = (value || '').toLowerCase().trim();
+
+    if (!filterValue) {
+      return this.reservedItems;
+    }
+
+    return this.reservedItems.filter(item =>
       item.title.toLowerCase().includes(filterValue) ||
       item.author.toLowerCase().includes(filterValue) ||
       item.type.toLowerCase().includes(filterValue)
@@ -117,38 +154,66 @@ export class RegisterComponent implements OnInit {
   displayFnItem(item: ItemDto): string {
     return item && item.title ? item.title : '';
   }
+  displayFnReservedItem(item: ItemDto): string {
+    return item && item.title ? item.title : '';
+  }
 
-  compareItems(item1: ItemDto, item2: ItemDto): boolean {
-    // Compare items by their IDs
-    return item1 && item2 ? item1.id === item2.id : item1 === item2;
+  getUserRentCount(selectedUser: UserDto): number {
+    if (!selectedUser) return 0;
+    return this.items.filter(item => +item.renterId === +selectedUser.id).length;
+  }
+  onUserInput() {
+    if (!this.userSearchControl.value) {
+      this.filteredUsers = this.userSearchControl.valueChanges.pipe(
+        startWith(''),
+        map(value => this._userFilter(value))
+      );
+    }
+  }
+
+  onItemInput() {
+    if (!this.itemSearchControl.value) {
+      this.filteredItems = this.itemSearchControl.valueChanges.pipe(
+        startWith(''),
+        map(value => this._itemFilter(value))
+      );
+    }
+  }
+
+  onRecivedItemInput() {
+    if (!this.reservedItemSearchControl.value) {
+      this.filteredRecivedItems = this.reservedItemSearchControl.valueChanges.pipe(
+        startWith(''),
+        map(value => this._reservedItemFilter(value))
+      );
+    }
   }
 
   getUsers(): void {
     this.userService.getAll()
-      .subscribe(
-        (data) => {
-          this.users = data;
+      .subscribe({
+        next: (users) => {
+          this.users = users;
           this.fetchData();
           this.addRentingUser = this.users.filter(u => u.status === "active");
+          this.resetOptions();
         },
-        (error) => {
-          console.log(error);
-        }
+      }
       );
   }
 
   getItems(): void {
     this.itemService.getAll()
-      .subscribe(
-        (data) => {
+      .subscribe({
+        next: (data) => {
+          console.log("items has been updated")
           this.items = data;
-          this.addRentedItem = this.items.filter(i => i.status.toLowerCase() === "free")
+          this.addRentedItem = this.items.filter(i => i.status.toLowerCase() === "free");
+          this.reservedItems = this.items.filter(i => i.status.toLowerCase() === "reserved");
           this.fetchData();
-        },
-        (error) => {
-          console.log(error);
+          this.resetOptions();
         }
-      );
+  });
   }
 
   fetchData(): void {
@@ -173,13 +238,60 @@ export class RegisterComponent implements OnInit {
 
   addNewRent() {
     let updateItem: ItemDto = this.itemSearchControl.value;
-    updateItem.renterId = this.userSearchControl.value.id;
+    let chosenUser: UserDto = this.userSearchControl.value;
+
+    // Check if both item and user are selected
+    if (!updateItem || !chosenUser) {
+      console.error('Please select both a user and an item.');
+      return;
+    }
+
+    // Check if the chosen user has more than 6 items
+    let userItemsCount: number = this.items.filter(item => item.renterId === chosenUser.id).length;
+    if (userItemsCount >= 6) {
+      console.error('The selected user already has 6 or more items rented.');
+      return;
+    }
+
+    // Update the item data
+    updateItem.renterId = chosenUser.id;
     updateItem.startRent = new Date();
     updateItem.status = "reserved";
-    if(this.itemSearchControl && this.userSearchControl){
-      console.log(updateItem);
-      this.itemService.update(updateItem).subscribe();
+
+    console.log('Updating item:', updateItem);
+
+    // Call the service to update the item
+    this.itemService.update(updateItem).subscribe(
+      () => {
+        console.log('Item updated successfully.');
+        this.getItems();
+      },
+      (error) => {
+        console.error('Error updating item:', error);
+      }
+      );
       this.fetchData();
+    this.itemSearchControl.setValue(null);
+    this.userSearchControl.setValue(null);
+  }
+
+  recivedItem(){
+    let itemToSetFree: ItemDto = this.reservedItemSearchControl.value;
+    if(!itemToSetFree){
+      console.log("Please select item to set free!");
+      return;
     }
+    itemToSetFree.renterId = 0;
+    itemToSetFree.status = "Free";
+    itemToSetFree.startRent = new Date(0);
+
+    this.itemService.update(itemToSetFree).subscribe({
+      next:() => {
+        console.log('Item updated successfully.');
+        this.getItems();
+      }
+    });
+    this.fetchData();
+    this.reservedItemSearchControl.setValue(null);
   }
 }

@@ -3,6 +3,8 @@ import express = require('express');
 import { UserController } from './controller/user.controller';
 import { ItemController } from './controller/item.controller';
 import { ItemWithRenterController } from './controller/itemWithRenter.controller';
+import { AuthUserController } from './controller/auth-user.controller';
+import { checkUser } from './protect-routes';
 
 export function getRouter() {
     const router = express.Router();
@@ -28,5 +30,9 @@ export function getRouter() {
     router.put('/itemWithRenter', ItemWithRenterController.update);
     router.delete('/itemWithRenter/:id', ItemWithRenterController.delete);
 
+    const authUserController = new AuthUserController();
+    router.post('/signUp', authUserController.create);
+    router.post('/login', authUserController.login);
+        
     return router;
 }

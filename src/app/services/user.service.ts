@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { UserDto } from '../models/user-dto.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class UserService {
   
   constructor() {}
 
-  getAll() {
+  getAll() : Observable<UserDto[]>{
     return this.http.get<UserDto[]>('/api/user');    
   }
 

@@ -77,14 +77,19 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 
   getUsers(): void {
     this.userService.getAll()
-      .subscribe(
-        (data) => {
-          this.users = data;
+      .subscribe({
+        next: (users) =>{
+          this.users = users;
           this.dataSource.data = this.users;
-        },
-        (error) => {
-          console.log(error);
         }
+      }
+        // (data) => {
+        //   this.users = data;
+        //   this.dataSource.data = this.users;
+        // },
+        // (error) => {
+        //   console.log(error);
+        // }
       );
   }
 
@@ -95,7 +100,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
       console.log(userData);
       this.userService.create(userData).subscribe({
         next: (userCreated) => {
-          this.router.navigateByUrl('/users');
+          this.dataSource.data = this.users
         },
         error: (err) => {
           console.log(err);
@@ -104,7 +109,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
     } else {
       console.log("ide lehet kellene csinálni vaalami popupot ha lesz idő :)");
     }
-    this.getUsers();
+    console.log(this.users);
   }
   async deleteUser(){
     

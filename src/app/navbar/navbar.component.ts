@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -8,5 +10,13 @@ import { Component } from '@angular/core';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+  constructor(public authService: AuthService, 
+    private router:Router,
+    ){}
+logout() {
+  this.authService.removeToken();
+  this.router.navigateByUrl('/');
+  //this.toastrService.success('Sikeresen kijelentkezett.', 'Kilépés');
+}
 
 }

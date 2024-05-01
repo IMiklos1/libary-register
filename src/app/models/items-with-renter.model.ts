@@ -11,4 +11,5 @@ export interface ItemWithRenterDto {
     renterId: number;
     startRent: Date;
     renter: UserDto | null; // Add a property to hold the renter information
+    differenceWithAddedDate?: number;
   }
