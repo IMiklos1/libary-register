@@ -115,7 +115,12 @@
             </form>
         </div>
         <div class="col">
-            <button class="btn btn-primary" type="button" (click)="addNewRent()">Add</button>
+            @if(authService.isLoggedIn()){
+                <button class="btn btn-primary" type="button" (click)="addNewRent()">Add</button>
+            }
+            @if(!authService.isLoggedIn()){
+                <button class="btn btn-primary" type="button" (click)="addNewRent()" disabled>Add</button>
+            }
         </div>
         <hr>
     </div>
@@ -137,7 +142,12 @@
             </form>
         </div>
         <div class="col">
-            <button class="btn btn-primary" type="button" (click)="recivedItem()">brought back</button>
+            @if(authService.isLoggedIn()){
+                <button class="btn btn-primary" type="button" (click)="recivedItem()">brought back</button>
+            }
+            @if(!authService.isLoggedIn()){
+                <button class="btn btn-primary" type="button" (click)="recivedItem()" disabled>brought back</button>
+            }
         </div>
         <hr>
     </div>

@@ -20,7 +20,12 @@
                     <label for="idCard">ID Card:</label>
                     <input type="text" formControlName="idCard" class="form-control" id="idCard">
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                @if(authService.isLoggedIn()){
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                }
+                @if(!authService.isLoggedIn()){
+                    <button type="submit" class="btn btn-primary" disabled>Submit</button>
+                }
             </form>
             <hr>
         </div>

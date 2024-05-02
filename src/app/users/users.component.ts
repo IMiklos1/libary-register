@@ -10,6 +10,7 @@ import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-users',
@@ -42,7 +43,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
     updateUser:any;
     
   constructor(private userService: UserService,
-    private formBuilder: FormBuilder) {
+    private formBuilder: FormBuilder,
+    public authService: AuthService) {
     this.users = [];
     this.getUsers();
     this.userForm = this.formBuilder.group<UserDto>({

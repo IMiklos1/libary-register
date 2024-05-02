@@ -8,6 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ItemService } from '../services/item.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-items',
@@ -47,7 +48,7 @@ export class ItemsComponent {
   updateItem: any;
 
   constructor(private itemService: ItemService,
-    private formBuilder: FormBuilder) {
+    private formBuilder: FormBuilder, public authService:AuthService) {
     this.items = [];
     this.getItems();
     this.itemForm = this.formBuilder.group<ItemDto>({

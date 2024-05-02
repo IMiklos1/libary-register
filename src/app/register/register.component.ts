@@ -16,6 +16,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -69,7 +70,7 @@ export class RegisterComponent implements OnInit {
   reservedItems: ItemDto[];
   filteredRecivedItems: Observable<ItemDto[]> = new Observable<ItemDto[]>;
 
-  constructor(private registerService: RegisterService, private userService: UserService, private itemService: ItemService) {
+  constructor(private registerService: RegisterService, private userService: UserService, private itemService: ItemService, public authService:AuthService) {
     this.users = [];
     this.items = [];
     this.getUsers();
