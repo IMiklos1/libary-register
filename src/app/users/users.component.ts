@@ -102,7 +102,7 @@ import { AuthService } from '../services/auth.service';
       console.log(userData);
       this.userService.create(userData).subscribe({
         next: (userCreated) => {
-          this.dataSource.data = this.users
+          this.getUsers();
         },
         error: (err) => {
           console.log(err);
@@ -111,6 +111,7 @@ import { AuthService } from '../services/auth.service';
     } else {
       console.log("ide lehet kellene csinálni vaalami popupot ha lesz idő :)");
     }
+    this.userForm.reset();
     console.log(this.users);
   }
   async deleteUser(){
